@@ -2,8 +2,15 @@ package com.pluralsight;
 
 public class ConsoleColors {
     //Sourced from https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
+    //Also used https://ansi.gabebanks.net
 
+    // Ones I made
+    public static final String ERROR = "\033[1;4;3;91m";
+    public static final String ERROR_MESSAGE="\033[0m\033[0;91m";
+    public static final String UNDERLINE = "\033[4m";
 
+    public static final String BOLD_UNDERLINE = "\033[4;1m";
+    public static final String GREEN_BOLD_BRIGHT_UNDERLINED = "\033[1;4;92m";
 
     // Reset
     public static final String RESET = "\033[0m";  // Text Reset
