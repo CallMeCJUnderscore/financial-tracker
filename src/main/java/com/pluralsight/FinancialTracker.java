@@ -119,6 +119,9 @@ public class FinancialTracker {
             input = scanner.nextLine();
             LocalTime time = LocalTime.parse(input, TIME_FORMATTER);
 
+            System.out.print("Please enter the reason of the deposit: ");
+            String reason = scanner.nextLine();
+
             System.out.print("Please enter the name of the vendor: ");
             String vendor = scanner.nextLine();
 
@@ -129,7 +132,7 @@ public class FinancialTracker {
                 System.out.println(ConsoleColors.ERROR +"ERROR"+ConsoleColors.ERROR_MESSAGE+": Deposit must be positive! Defaulting to $1..."+ConsoleColors.RESET);
                 depositAmount = 1.0;
             }
-            Transaction deposit = new Transaction(date, time, "Deposit", vendor, depositAmount);
+            Transaction deposit = new Transaction(date, time, reason + " (Deposit)", vendor, depositAmount);
             transactions.add(deposit);
             String output = "\n" + deposit.getDate() + "|" + deposit.getTime() + "|" + deposit.getDescription() + "|" + deposit.getVendor() + "|" + deposit.getPrice();
             bufferedWriter.write(output);
@@ -161,6 +164,9 @@ public class FinancialTracker {
             input = scanner.nextLine();
             LocalTime time = LocalTime.parse(input, TIME_FORMATTER);
 
+            System.out.print("Please enter the reason of the payment: ");
+            String reason = scanner.nextLine();
+
             System.out.print("Please enter the name of the vendor: ");
             String vendor = scanner.nextLine();
 
@@ -171,7 +177,7 @@ public class FinancialTracker {
                 System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Defaulting to $1..."+ConsoleColors.RESET);
                 paymentAmount = 1.0;
             }
-            Transaction payment = new Transaction(date, time, "Payment", vendor, paymentAmount * -1);
+            Transaction payment = new Transaction(date, time, reason + " (Payment)", vendor, paymentAmount * -1);
             transactions.add(payment);
             String output = "\n" + payment.getDate() + "|" + payment.getTime() + "|" + payment.getDescription() + "|" + payment.getVendor() + "|" + payment.getPrice();
             bufferedWriter.write(output);
@@ -196,6 +202,7 @@ public class FinancialTracker {
             System.out.println(ConsoleColors.GREEN_BOLD+"D) "+ConsoleColors.RESET+"Deposits");
             System.out.println(ConsoleColors.GREEN_BOLD+"P) "+ConsoleColors.RESET+"Payments");
             System.out.println(ConsoleColors.GREEN_BOLD+"R) "+ConsoleColors.RESET+"Reports");
+            System.out.println(ConsoleColors.GREEN_BOLD+"S) "+ConsoleColors.RESET+"Custom Search");
             System.out.println(ConsoleColors.GREEN_BOLD+"H) "+ConsoleColors.RESET+"Home");
             System.out.print("Please make a choice: ");
 
@@ -213,6 +220,9 @@ public class FinancialTracker {
                     break;
                 case "R":
                     reportsMenu(scanner);
+                    break;
+                case "S":
+                    customSearch(scanner);
                     break;
                 case "H":
                     running = false;
@@ -392,5 +402,103 @@ public class FinancialTracker {
         }
 
         System.out.println();
+    }
+
+    public static void customSearch(Scanner scanner){
+        System.out.println("Welcome to the "+ConsoleColors.GREEN_BOLD_BRIGHT+"Custom Search!"+ConsoleColors.RESET);
+        System.out.println("If you would not like to search by a given term, feel free to leave it blank.");
+        try{
+            System.out.print("Please add the start date of the search (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14" + ConsoleColors.RESET + "): ");
+            String input = scanner.nextLine().trim();
+            LocalDate startDate;
+            if(!input.isEmpty()){
+                startDate = LocalDate.parse(input, DATE_FORMATTER);
+            } else {
+                startDate = LocalDate.of(1, 1, 1);
+            }
+
+            System.out.print("Please add the end date of the search (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14" + ConsoleColors.RESET + "): ");
+            input = scanner.nextLine().trim();
+            LocalDate endDate;
+            if(!input.isEmpty()){
+                endDate = LocalDate.parse(input, DATE_FORMATTER);
+            } else {
+                endDate = LocalDate.of(9999, 12, 31);
+            }
+
+            System.out.print("Please enter the reason of the transaction: ");
+            input = scanner.nextLine().trim();
+            String description;
+            if(!input.isEmpty()){
+                description = input;
+            } else {
+                description = "NONE";
+            }
+
+            System.out.print("Please enter the vendor of the transaction: ");
+            input = scanner.nextLine().trim();
+            String vendor;
+            if(!input.isEmpty()){
+                vendor = input;
+            } else {
+                vendor = "NONE";
+            }
+
+            System.out.print("Please enter the price of the transaction: ");
+            input = scanner.nextLine().trim();
+            double price = 0;
+            if(!input.isEmpty()){
+                price = Double.parseDouble(input);
+            }
+            if (price < 0) {
+                System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Ignoring term..."+ConsoleColors.RESET);
+                price = 0;
+            }
+
+            ArrayList<Transaction> found = new ArrayList<>(transactions);
+            if(!startDate.equals(LocalDate.of(1, 1, 1))){
+                //Removes transaction from found if date is before the start day, including the start day itself
+                found.removeIf(item -> !item.getDate().isAfter(startDate.minusDays(1)));
+            }
+
+            if(!endDate.equals(LocalDate.of(9999,12,31))){
+                //Removes transaction from found if date is after the end day, including the end day itself
+                found.removeIf(item -> !item.getDate().isBefore(endDate.plusDays(1)));
+            }
+
+            if(!description.equals("NONE")){
+                //Removes transaction from found if the description does not match what was supplied by user
+                found.removeIf(item -> !item.getDescription().equals(description));
+            }
+
+            if(!vendor.equals("NONE")){
+                //Removes transaction from found if the vendor does not match what was supplied by user
+                found.removeIf(item -> !item.getVendor().equals(vendor));
+            }
+
+            if(price!=0){
+                //Removes transaction from found if the price does not match what was supplied by user
+                double finalPrice = price;
+                found.removeIf(item -> item.getPrice()!= finalPrice);
+            }
+
+            if (found.isEmpty()) {
+                System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No transactions found with given search terms!"+ConsoleColors.RESET);
+            } else {
+                found.sort(Transaction.TransDate);
+                for (Transaction transaction : found) {
+                    System.out.println(transaction);
+                }
+            }
+
+            System.out.println();
+        }
+        catch (DateTimeParseException e) {
+            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!"+ConsoleColors.RESET);
+        } catch (NumberFormatException e) {
+            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not parse price!"+ConsoleColors.RESET);
+        } catch (Exception e) {
+            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with search! Check formatting of inputs!"+ConsoleColors.RESET);
+        }
     }
 }
