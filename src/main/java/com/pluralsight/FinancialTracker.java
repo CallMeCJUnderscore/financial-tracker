@@ -35,23 +35,16 @@ public class FinancialTracker {
             String input = scanner.nextLine().toUpperCase().trim();
             System.out.println();
 
-            switch (input.toUpperCase()) {
-                case "D":
-                    addDeposit(scanner);
-                    break;
-                case "P":
-                    addPayment(scanner);
-                    break;
-                case "L":
-                    ledgerMenu(scanner);
-                    break;
-                case "X":
+            switch (input) {
+                case "D" -> addDeposit(scanner);
+                case "P" -> addPayment(scanner);
+                case "L" -> ledgerMenu(scanner);
+                case "X" -> {
                     running = false;
-                    System.out.println(ConsoleColors.GREEN_BOLD_BRIGHT+"Thank you for using this app! Goodbye!");
-                    break;
-                default:
-                    System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Invalid option"  + ConsoleColors.RESET);
-                    break;
+                    System.out.println(ConsoleColors.GREEN_BOLD_BRIGHT + "Thank you for using this app! Goodbye!");
+                }
+                default ->
+                        System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Invalid option" + ConsoleColors.RESET);
             }
         }
 
@@ -111,7 +104,7 @@ public class FinancialTracker {
         // The new deposit should be added to the `transactions` ArrayList.
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME, true));
-            System.out.print("Please add the date of the deposit (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14): ");
+            System.out.print("Please add the date of the deposit (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14"+ConsoleColors.RESET+"): ");
             String input = scanner.nextLine();
             LocalDate date = LocalDate.parse(input, DATE_FORMATTER);
 
@@ -209,27 +202,14 @@ public class FinancialTracker {
             String input = scanner.nextLine().toUpperCase().trim();
 
             switch (input.toUpperCase()) {
-                case "A":
-                    displayLedger();
-                    break;
-                case "D":
-                    displayDeposits();
-                    break;
-                case "P":
-                    displayPayments();
-                    break;
-                case "R":
-                    reportsMenu(scanner);
-                    break;
-                case "S":
-                    customSearch(scanner);
-                    break;
-                case "H":
-                    running = false;
-                    break;
-                default:
-                    System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Invalid option" + ConsoleColors.RESET);
-                    break;
+                case "A" -> displayLedger();
+                case "D" -> displayDeposits();
+                case "P" -> displayPayments();
+                case "R" -> reportsMenu(scanner);
+                case "S" -> customSearch(scanner);
+                case "H" -> running = false;
+                default ->
+                        System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Invalid option" + ConsoleColors.RESET);
             }
 
         }
@@ -491,7 +471,7 @@ public class FinancialTracker {
         //INSERT ALL THE ANSI ESCAPE CODES
         System.out.println("""
                     +----------+--------+-------------------------+--------------------+---------+
-                    |   \033[4;1mDATE\033[0m   |  \033[4;1mTIME\033[0m  │       \033[4;1mDESCRIPTION\033[0m       |       \033[4;1mVENDOR\033[0m       |  \033[4;1mVALUEl\033[0m  |
+                    |   \033[4;1mDATE\033[0m   |  \033[4;1mTIME\033[0m  │       \033[4;1mDESCRIPTION\033[0m       |       \033[4;1mVENDOR\033[0m       |  \033[4;1mVALUE\033[0m  |
                     +----------+--------+-------------------------+--------------------+---------+""");
         for (Transaction transaction : transactions) {
             //negative sign left justifies, first number sets padding, second number sets max width
