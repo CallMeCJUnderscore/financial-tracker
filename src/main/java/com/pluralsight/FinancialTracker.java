@@ -1,6 +1,8 @@
 package com.pluralsight;
 
 import java.io.*;
+import java.sql.Array;
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -263,10 +265,7 @@ public class FinancialTracker {
         if (found.isEmpty()) {
             System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No deposits found!"+ConsoleColors.RESET);
         } else {
-            found.sort(Transaction.TransDate);
-            for (Transaction transaction : found) {
-                System.out.println(transaction);
-            }
+            generateTable(found);
         }
 
         System.out.println();
@@ -286,10 +285,7 @@ public class FinancialTracker {
         if (found.isEmpty()) {
             System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No payments found!"+ConsoleColors.RESET);
         } else {
-            found.sort(Transaction.TransDate);
-            for (Transaction transaction : found) {
-                System.out.println(transaction);
-            }
+            generateTable(found);
         }
 
         System.out.println();
@@ -371,10 +367,7 @@ public class FinancialTracker {
         if (found.isEmpty()) {
             System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No transactions found with given date range!" + ConsoleColors.RESET);
         } else {
-            found.sort(Transaction.TransDate);
-            for (Transaction transaction : found) {
-                System.out.println(transaction);
-            }
+            generateTable(found);
         }
 
         System.out.println();
@@ -395,10 +388,7 @@ public class FinancialTracker {
         if (found.isEmpty()) {
             System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No transactions found with given vendor!"+ConsoleColors.RESET);
         } else {
-            found.sort(Transaction.TransDate);
-            for (Transaction transaction : found) {
-                System.out.println(transaction);
-            }
+            generateTable(found);
         }
 
         System.out.println();
@@ -485,10 +475,7 @@ public class FinancialTracker {
             if (found.isEmpty()) {
                 System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No transactions found with given search terms!"+ConsoleColors.RESET);
             } else {
-                found.sort(Transaction.TransDate);
-                for (Transaction transaction : found) {
-                    System.out.println(transaction);
-                }
+                generateTable(found);
             }
 
             System.out.println();
@@ -499,6 +486,24 @@ public class FinancialTracker {
             System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not parse price!"+ConsoleColors.RESET);
         } catch (Exception e) {
             System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with search! Check formatting of inputs!"+ConsoleColors.RESET);
+        }
+    }
+    public static void generateTable(ArrayList<Transaction> found){
+        found.sort(Transaction.TransDate);
+        System.out.println("""
+                    +----------+--------+-------------------------+--------------------+---------+
+                    |   \033[4;1mDATE\033[0m   |  \033[4;1mTIME\033[0m  │       \033[4;1mDESCRIPTION\033[0m       |       \033[4;1mVENDOR\033[0m       |  \033[4;1mPRICE\033[0m  |
+                    +----------+--------+-------------------------+--------------------+---------+""");
+        for (Transaction transaction : found) {
+            String formattedDate = String.format("%-10.10s", transaction.getDate());
+            String formattedDesc = String.format("%-25.25s",transaction.getDescription());
+            String formattedVendor = String.format("%-20.20s",transaction.getVendor());
+            String formattedTime = String.format("%-8.8s", transaction.getTime());
+            String formattedPrice = String.format("%6.2f", transaction.getPrice());
+            formattedPrice = String.format("$%8.8s", formattedPrice);
+            String output = String.format("|%s|%s|%s|%s|%s|", formattedDate,formattedTime,formattedDesc,formattedVendor,formattedPrice);
+            System.out.println(output);
+            System.out.println("+----------+--------+-------------------------+--------------------+---------+");
         }
     }
 }
