@@ -1,8 +1,6 @@
 package com.pluralsight;
 
 import java.io.*;
-import java.sql.Array;
-import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
