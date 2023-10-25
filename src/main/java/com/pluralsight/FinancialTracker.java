@@ -24,7 +24,7 @@ public class FinancialTracker {
 
 
         while (running) {
-            System.out.println("Welcome to "+ConsoleColors.GREEN_BOLD_BRIGHT+"TransactionApp"+ConsoleColors.RESET);
+            System.out.println("Welcome to "+ConsoleColors.GREEN_BOLD_BRIGHT+"CallMeFinance!"+ConsoleColors.RESET);
             System.out.println("Your Options Are:");
             System.out.println(ConsoleColors.GREEN_BOLD+"D) "+ConsoleColors.RESET+"Add Deposit");
             System.out.println(ConsoleColors.GREEN_BOLD+"P) "+ConsoleColors.RESET+"Make Payment (Debit)");
@@ -241,11 +241,8 @@ public class FinancialTracker {
         // This method should display a table of all transactions in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, type, and amount.
         System.out.println("\nShowing all transactions of type: "+ConsoleColors.BOLD_UNDERLINE+"ANY"+ConsoleColors.RESET+"...");
-        transactions.sort(Transaction.TransDate);
-        for (Transaction transaction : transactions) {
-            System.out.println(transaction);
-        }
 
+        generateTable(transactions);
         System.out.println();
     }
 
@@ -301,6 +298,7 @@ public class FinancialTracker {
             System.out.println(ConsoleColors.GREEN_BOLD+"4) "+ConsoleColors.RESET+"Previous Year");
             System.out.println(ConsoleColors.GREEN_BOLD+"5) "+ConsoleColors.RESET+"Search by Vendor");
             System.out.println(ConsoleColors.GREEN_BOLD+"0) "+ConsoleColors.RESET+"Back");
+            System.out.print("Please make a choice: ");
 
             String input = scanner.nextLine().trim();
 
@@ -318,6 +316,7 @@ public class FinancialTracker {
                     LocalDate lastMonth = LocalDate.now().minusMonths(1);
                     System.out.println("Displaying all transactions for the month of " + ConsoleColors.BOLD_UNDERLINE + lastMonth.getMonth()+ConsoleColors.RESET + "...");
                     filterTransactionsByDate(lastMonth.withDayOfMonth(1), lastMonth.withDayOfMonth(lastMonth.lengthOfMonth()));
+                    //lengthOfMonth is used because there is no way to concretely know how many days last month has and ensure every day is checked
                     break;
                 case "3":
                     // Generate a report for all transactions within the current year,
@@ -439,7 +438,7 @@ public class FinancialTracker {
                 price = Double.parseDouble(input);
             }
             if (price < 0) {
-                System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Ignoring term..."+ConsoleColors.RESET);
+                System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Ignoring filter..."+ConsoleColors.RESET);
                 price = 0;
             }
 
@@ -486,13 +485,16 @@ public class FinancialTracker {
             System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with search! Check formatting of inputs!"+ConsoleColors.RESET);
         }
     }
-    public static void generateTable(ArrayList<Transaction> found){
-        found.sort(Transaction.TransDate);
+    public static void generateTable(ArrayList<Transaction> transactions){
+        transactions.sort(Transaction.TransDate);
+
+        //INSERT ALL THE ANSI ESCAPE CODES
         System.out.println("""
                     +----------+--------+-------------------------+--------------------+---------+
-                    |   \033[4;1mDATE\033[0m   |  \033[4;1mTIME\033[0m  │       \033[4;1mDESCRIPTION\033[0m       |       \033[4;1mVENDOR\033[0m       |  \033[4;1mPRICE\033[0m  |
+                    |   \033[4;1mDATE\033[0m   |  \033[4;1mTIME\033[0m  │       \033[4;1mDESCRIPTION\033[0m       |       \033[4;1mVENDOR\033[0m       |  \033[4;1mVALUEl\033[0m  |
                     +----------+--------+-------------------------+--------------------+---------+""");
-        for (Transaction transaction : found) {
+        for (Transaction transaction : transactions) {
+            //negative sign left justifies, first number sets padding, second number sets max width
             String formattedDate = String.format("%-10.10s", transaction.getDate());
             String formattedDesc = String.format("%-25.25s",transaction.getDescription());
             String formattedVendor = String.format("%-20.20s",transaction.getVendor());
