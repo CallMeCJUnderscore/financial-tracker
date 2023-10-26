@@ -8,7 +8,7 @@ This project contains a multifaceted CLI, centered around parsing and interfacin
 Error checking and best practices exists throughout, thanks to the use of frequent commenting, try-catch blocks, and other control structures such as if-else and switch statements.
 
 ## Why is it Impressive?
-In order to complete this project, I also had to do a sizeable amount of research on my own, outside of class hours, to help get the specifics of the more fanciful aspects of the program in order, such as the formatted text created via ANSI Escape Codes, the custom search function via Lambda Expressions, and the multi-field Comparator used to handle sorting the table for showing the results.
+In order to complete this project, I also had to do a sizeable amount of research on my own, to help get the specifics of the more fanciful aspects of the program in order, such as the formatted text created via ANSI Escape Codes, the custom search function via Lambda Expressions, and the multi-field Comparator used to handle sorting the arraylist that is output to the user.
 
 
 ## Screenshots
