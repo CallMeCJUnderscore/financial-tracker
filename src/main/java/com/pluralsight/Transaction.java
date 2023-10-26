@@ -13,16 +13,16 @@ public class Transaction {
     private LocalTime time;
     private String description;
     private String vendor;
-    private double price;
+    private double value;
 
     /*--------------CONSTRUCTORS-------------*/
 
-    public Transaction(LocalDate date, LocalTime time, String description, String vendor, double price) {
+    public Transaction(LocalDate date, LocalTime time, String description, String vendor, double value) {
         this.date = date;
         this.time = time;
         this.description = description;
         this.vendor = vendor;
-        this.price = price;
+        this.value = value;
     }
 
     /*------------GETTERS/SETTERS------------*/
@@ -59,33 +59,29 @@ public class Transaction {
         this.vendor = vendor;
     }
 
-    public double getPrice() {
-        return price;
+    public double getValue() {
+        return value;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setValue(double value) {
+        this.value = value;
     }
 
     /*---------------FUNCTIONS---------------*/
 
     @Override
     public String toString() {
-        return "Transaction{" +
-                "date=" + date +
-                ", time=" + time +
-                ", description='" + description + '\'' +
-                ", vendor='" + vendor + '\'' +
-                ", price=" + price +
-                '}';
+        return String.format("""
+                                    DATE: %s
+                                    TIME: %s
+                                    DESCRIPTION: %s
+                                    VENDOR: %s
+                                    VALUE: $%.2f
+                                    """, date, time, description, vendor, value);
     }
 
-    public static Comparator<Transaction> TransDate = new Comparator<Transaction>() { //allows sorting
-        @Override
-        public int compare(Transaction o1, Transaction o2) {
-            LocalDate date1 = o1.getDate();
-            LocalDate date2 = o2.getDate();
-            return date1.compareTo(date2);
-        }
-    };
+    public static Comparator<Transaction> multiField(){ //sorter
+        return Comparator.comparing(Transaction::getDate)
+                .thenComparing(Transaction::getVendor);
+    }
 }

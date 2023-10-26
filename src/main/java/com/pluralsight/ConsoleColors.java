@@ -8,8 +8,8 @@ public class ConsoleColors {
     public static final String ERROR = "\033[1;4;3;91m";
     public static final String ERROR_MESSAGE="\033[0m\033[0;91m";
     public static final String UNDERLINE = "\033[4m";
-
     public static final String BOLD_UNDERLINE = "\033[4;1m";
+    public static final String BOLD = "\033[1m";
     public static final String GREEN_BOLD_BRIGHT_UNDERLINED = "\033[1;4;92m";
 
     // Reset

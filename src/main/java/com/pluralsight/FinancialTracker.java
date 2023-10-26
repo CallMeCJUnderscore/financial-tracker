@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class FinancialTracker {
@@ -24,16 +25,15 @@ public class FinancialTracker {
 
 
         while (running) {
-            System.out.println("Welcome to "+ConsoleColors.GREEN_BOLD_BRIGHT+"CallMeFinance!"+ConsoleColors.RESET);
+            System.out.println("Welcome to " + ConsoleColors.GREEN_BOLD_BRIGHT + "CallMeFinance!" + ConsoleColors.RESET);
             System.out.println("Your Options Are:");
-            System.out.println(ConsoleColors.GREEN_BOLD+"D) "+ConsoleColors.RESET+"Add Deposit");
-            System.out.println(ConsoleColors.GREEN_BOLD+"P) "+ConsoleColors.RESET+"Make Payment (Debit)");
-            System.out.println(ConsoleColors.GREEN_BOLD+"L) "+ConsoleColors.RESET+"Ledger");
-            System.out.println(ConsoleColors.GREEN_BOLD+"X) "+ConsoleColors.RESET+"Exit");
+            System.out.println(ConsoleColors.GREEN_BOLD + "D) " + ConsoleColors.RESET + "Add Deposit");
+            System.out.println(ConsoleColors.GREEN_BOLD + "P) " + ConsoleColors.RESET + "Make Payment (Debit)");
+            System.out.println(ConsoleColors.GREEN_BOLD + "L) " + ConsoleColors.RESET + "Ledger");
+            System.out.println(ConsoleColors.GREEN_BOLD + "X) " + ConsoleColors.RESET + "Exit");
             System.out.print("Please make a choice: ");
 
             String input = scanner.nextLine().toUpperCase().trim();
-            System.out.println();
 
             switch (input) {
                 case "D" -> addDeposit(scanner);
@@ -68,7 +68,7 @@ public class FinancialTracker {
                 System.out.println("Inventory loaded!\n");
             }
         } catch (IOException e) {
-            System.out.println(ConsoleColors.ERROR +"ERROR"+ConsoleColors.ERROR_MESSAGE+": Could not run file creation!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR +"ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not run file creation!" + ConsoleColors.RESET);
         }
 
         try {
@@ -86,11 +86,11 @@ public class FinancialTracker {
             }
             bufferedReader.close();
         } catch (IOException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not create reader!" + ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not create reader!" + ConsoleColors.RESET);
         } catch (DateTimeParseException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!" + ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!" + ConsoleColors.RESET);
         } catch (Exception e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not load inventory!" + ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not load inventory!" + ConsoleColors.RESET);
         }
 
         System.out.println();
@@ -104,11 +104,11 @@ public class FinancialTracker {
         // The new deposit should be added to the `transactions` ArrayList.
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME, true));
-            System.out.print("Please add the date of the deposit (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14"+ConsoleColors.RESET+"): ");
+            System.out.print("Please add the date of the deposit (Example: " + ConsoleColors.BOLD + "2023-03-14" + ConsoleColors.RESET + "): ");
             String input = scanner.nextLine();
             LocalDate date = LocalDate.parse(input, DATE_FORMATTER);
 
-            System.out.print("Please add the time of the deposit (Example:" + ConsoleColors.BOLD_UNDERLINE + "14:12:55): ");
+            System.out.print("Please add the time of the deposit (Example: " + ConsoleColors.BOLD + "14:12:55" + ConsoleColors.RESET + "): ");
             input = scanner.nextLine();
             LocalTime time = LocalTime.parse(input, TIME_FORMATTER);
 
@@ -120,22 +120,27 @@ public class FinancialTracker {
 
             System.out.print("Please enter the amount of the deposit: $");
             double depositAmount = scanner.nextDouble();
-            scanner.nextLine();
+            scanner.nextLine(); //Consume NewLine character to not cause issues
+
             if (depositAmount <= 0) {
-                System.out.println(ConsoleColors.ERROR +"ERROR"+ConsoleColors.ERROR_MESSAGE+": Deposit must be positive! Defaulting to $1..."+ConsoleColors.RESET);
+                System.out.println(ConsoleColors.ERROR +"ERROR" + ConsoleColors.ERROR_MESSAGE + ": Deposit must be positive! Defaulting to $1..." + ConsoleColors.RESET);
                 depositAmount = 1.0;
             }
             Transaction deposit = new Transaction(date, time, reason + " (Deposit)", vendor, depositAmount);
             transactions.add(deposit);
-            String output = "\n" + deposit.getDate() + "|" + deposit.getTime() + "|" + deposit.getDescription() + "|" + deposit.getVendor() + "|" + deposit.getPrice();
+            String output = "\n" + deposit.getDate() + "|" + deposit.getTime() + "|" + deposit.getDescription() + "|" + deposit.getVendor() + "|" + deposit.getValue();
             bufferedWriter.write(output);
+            System.out.println("\nThe following transaction has been added to the ledger:");
+            System.out.println(deposit);
             bufferedWriter.close();
         } catch (DateTimeParseException e) {
-            System.out.println(ConsoleColors.ERROR +"ERROR"+ConsoleColors.ERROR_MESSAGE+": Could not parse date/time!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR +"ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!" + ConsoleColors.RESET);
         } catch (IOException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not instantiate writer!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not instantiate writer!" + ConsoleColors.RESET);
+        } catch (InputMismatchException e){
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Improper type input!" + ConsoleColors.RESET);
         } catch (Exception e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with adding deposit!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with adding deposit!" + ConsoleColors.RESET);
         }
 
         System.out.println();
@@ -149,11 +154,11 @@ public class FinancialTracker {
         // The new payment should be added to the `transactions` ArrayList.
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME, true));
-            System.out.print("Please add the date of the payment (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14" + ConsoleColors.RESET + "): ");
+            System.out.print("Please add the date of the payment (Example: " + ConsoleColors.BOLD + "2023-03-14" + ConsoleColors.RESET + "): ");
             String input = scanner.nextLine();
             LocalDate date = LocalDate.parse(input, DATE_FORMATTER);
 
-            System.out.print("Please add the time of the payment (Example:" + ConsoleColors.BOLD_UNDERLINE + "14:12:55" + ConsoleColors.RESET + "): ");
+            System.out.print("Please add the time of the payment (Example: " + ConsoleColors.BOLD + "14:12:55" + ConsoleColors.RESET + "): ");
             input = scanner.nextLine();
             LocalTime time = LocalTime.parse(input, TIME_FORMATTER);
 
@@ -165,22 +170,29 @@ public class FinancialTracker {
 
             System.out.print("Please enter the amount of the deposit: $");
             double paymentAmount = scanner.nextDouble();
-            scanner.nextLine();
+            scanner.nextLine(); //Consume NewLine character to not cause issues
             if (paymentAmount <= 0) {
-                System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Defaulting to $1..."+ConsoleColors.RESET);
+                System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Defaulting to $1..." +ConsoleColors.RESET);
                 paymentAmount = 1.0;
             }
+
+
             Transaction payment = new Transaction(date, time, reason + " (Payment)", vendor, paymentAmount * -1);
             transactions.add(payment);
-            String output = "\n" + payment.getDate() + "|" + payment.getTime() + "|" + payment.getDescription() + "|" + payment.getVendor() + "|" + payment.getPrice();
+
+            String output = "\n" + payment.getDate() + "|" + payment.getTime() + "|" + payment.getDescription() + "|" + payment.getVendor() + "|" + payment.getValue();
+            System.out.println("The following transaction has been added to the ledger:");
+            System.out.println(payment);
             bufferedWriter.write(output);
             bufferedWriter.close();
         } catch (DateTimeParseException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!" + ConsoleColors.RESET);
         } catch (IOException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not instantiate writer!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not instantiate writer!" + ConsoleColors.RESET);
+        } catch (InputMismatchException e){
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Improper type input!" + ConsoleColors.RESET);
         } catch (Exception e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with adding deposit! Check formatting of inputs!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with adding deposit!" + ConsoleColors.RESET);
         }
 
         System.out.println();
@@ -189,27 +201,26 @@ public class FinancialTracker {
     private static void ledgerMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("Welcome to the "+ConsoleColors.GREEN_BOLD_BRIGHT+"Ledger!"+ConsoleColors.RESET);
+            System.out.println("Welcome to the " + ConsoleColors.GREEN_BOLD_BRIGHT + "Ledger!" + ConsoleColors.RESET);
             System.out.println("Your options are:");
-            System.out.println(ConsoleColors.GREEN_BOLD+"A) "+ConsoleColors.RESET+"All");
-            System.out.println(ConsoleColors.GREEN_BOLD+"D) "+ConsoleColors.RESET+"Deposits");
-            System.out.println(ConsoleColors.GREEN_BOLD+"P) "+ConsoleColors.RESET+"Payments");
-            System.out.println(ConsoleColors.GREEN_BOLD+"R) "+ConsoleColors.RESET+"Reports");
-            System.out.println(ConsoleColors.GREEN_BOLD+"S) "+ConsoleColors.RESET+"Custom Search");
-            System.out.println(ConsoleColors.GREEN_BOLD+"H) "+ConsoleColors.RESET+"Home");
+            System.out.println(ConsoleColors.GREEN_BOLD + "A) " + ConsoleColors.RESET + "All");
+            System.out.println(ConsoleColors.GREEN_BOLD + "D) " + ConsoleColors.RESET + "Deposits");
+            System.out.println(ConsoleColors.GREEN_BOLD + "P) " + ConsoleColors.RESET + "Payments");
+            System.out.println(ConsoleColors.GREEN_BOLD + "R) " + ConsoleColors.RESET + "Reports");
+            System.out.println(ConsoleColors.GREEN_BOLD + "S) " + ConsoleColors.RESET + "Custom Search");
+            System.out.println(ConsoleColors.GREEN_BOLD + "H) " + ConsoleColors.RESET + "Home");
             System.out.print("Please make a choice: ");
 
             String input = scanner.nextLine().toUpperCase().trim();
 
-            switch (input.toUpperCase()) {
+            switch (input) {
                 case "A" -> displayLedger();
                 case "D" -> displayDeposits();
                 case "P" -> displayPayments();
                 case "R" -> reportsMenu(scanner);
                 case "S" -> customSearch(scanner);
                 case "H" -> running = false;
-                default ->
-                        System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Invalid option" + ConsoleColors.RESET);
+                default -> System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Invalid option" + ConsoleColors.RESET);
             }
 
         }
@@ -220,7 +231,7 @@ public class FinancialTracker {
     private static void displayLedger() {
         // This method should display a table of all transactions in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, type, and amount.
-        System.out.println("\nShowing all transactions of type: "+ConsoleColors.BOLD_UNDERLINE+"ANY"+ConsoleColors.RESET+"...");
+        System.out.println("\nShowing all transactions of type: " + ConsoleColors.BOLD + "ANY" + ConsoleColors.RESET +":");
 
         generateTable(transactions);
         System.out.println();
@@ -229,16 +240,16 @@ public class FinancialTracker {
     private static void displayDeposits() {
         // This method should display a table of all deposits in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, and amount.
-        System.out.println("\nShowing all transactions of type: "+ConsoleColors.BOLD_UNDERLINE+"DEPOSIT"+ConsoleColors.RESET+"...");
+        System.out.println("\nShowing all transactions of type: " + ConsoleColors.BOLD + "DEPOSIT" + ConsoleColors.RESET +":");
         ArrayList<Transaction> found = new ArrayList<>();
         for (Transaction transaction : transactions) {
 
-            if (transaction.getPrice() >= 0) {
+            if (transaction.getValue() >= 0) {
                 found.add(transaction);
             }
         }
         if (found.isEmpty()) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No deposits found!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": No deposits found!" + ConsoleColors.RESET);
         } else {
             generateTable(found);
         }
@@ -249,16 +260,16 @@ public class FinancialTracker {
     private static void displayPayments() {
         // This method should display a table of all payments in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, and amount.
-        System.out.println("\nShowing all transactions of type: "+ConsoleColors.BOLD_UNDERLINE+"PAYMENT"+ConsoleColors.RESET+"...");
+        System.out.println("\nShowing all transactions of type: " + ConsoleColors.BOLD + "PAYMENT" + ConsoleColors.RESET +":");
         ArrayList<Transaction> found = new ArrayList<>();
         for (Transaction transaction : transactions) {
 
-            if (transaction.getPrice() <= 0) {
+            if (transaction.getValue() <= 0) {
                 found.add(transaction);
             }
         }
         if (found.isEmpty()) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No payments found!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": No payments found!" + ConsoleColors.RESET);
         } else {
             generateTable(found);
         }
@@ -270,14 +281,14 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            System.out.println("Welcome to the "+ConsoleColors.GREEN_BOLD_BRIGHT+"Reports!"+ConsoleColors.RESET);
+            System.out.println("Welcome to the " + ConsoleColors.GREEN_BOLD_BRIGHT + "Reports!" + ConsoleColors.RESET);
             System.out.println("Your options are:");
-            System.out.println(ConsoleColors.GREEN_BOLD+"1) "+ConsoleColors.RESET+"Month To Date");
-            System.out.println(ConsoleColors.GREEN_BOLD+"2) "+ConsoleColors.RESET+"Previous Month");
-            System.out.println(ConsoleColors.GREEN_BOLD+"3) "+ConsoleColors.RESET+"Year To Date");
-            System.out.println(ConsoleColors.GREEN_BOLD+"4) "+ConsoleColors.RESET+"Previous Year");
-            System.out.println(ConsoleColors.GREEN_BOLD+"5) "+ConsoleColors.RESET+"Search by Vendor");
-            System.out.println(ConsoleColors.GREEN_BOLD+"0) "+ConsoleColors.RESET+"Back");
+            System.out.println(ConsoleColors.GREEN_BOLD + "1) " + ConsoleColors.RESET + "Month To Date");
+            System.out.println(ConsoleColors.GREEN_BOLD + "2) " + ConsoleColors.RESET + "Previous Month");
+            System.out.println(ConsoleColors.GREEN_BOLD + "3) " + ConsoleColors.RESET + "Year To Date");
+            System.out.println(ConsoleColors.GREEN_BOLD + "4) " + ConsoleColors.RESET + "Previous Year");
+            System.out.println(ConsoleColors.GREEN_BOLD + "5) " + ConsoleColors.RESET + "Search by Vendor");
+            System.out.println(ConsoleColors.GREEN_BOLD + "0) " + ConsoleColors.RESET + "Back");
             System.out.print("Please make a choice: ");
 
             String input = scanner.nextLine().trim();
@@ -287,39 +298,41 @@ public class FinancialTracker {
                     // Generate a report for all transactions within the current month,
                     // including the date, vendor, and amount for each transaction.
                     LocalDate thisMonth = LocalDate.now();
-                    System.out.println("Displaying all transactions for the month of " + ConsoleColors.BOLD_UNDERLINE + thisMonth.getMonth()+ConsoleColors.RESET + "...");
+                    System.out.println("Displaying all transactions for the month of " + ConsoleColors.BOLD + thisMonth.getMonth() + ConsoleColors.RESET);
                     filterTransactionsByDate(thisMonth.withDayOfMonth(1), thisMonth);
                     break;
                 case "2":
                     // Generate a report for all transactions within the previous month,
                     // including the date, vendor, and amount for each transaction.
                     LocalDate lastMonth = LocalDate.now().minusMonths(1);
-                    System.out.println("Displaying all transactions for the month of " + ConsoleColors.BOLD_UNDERLINE + lastMonth.getMonth()+ConsoleColors.RESET + "...");
+                    System.out.println("Displaying all transactions for the month of " + ConsoleColors.BOLD + lastMonth.getMonth() + ConsoleColors.RESET);
                     filterTransactionsByDate(lastMonth.withDayOfMonth(1), lastMonth.withDayOfMonth(lastMonth.lengthOfMonth()));
-                    //lengthOfMonth is used because there is no way to concretely know how many days last month has and ensure every day is checked
+                    //lengthOfMonth is used because there is no way to concretely know how many days last month has, but you need to ensure every day is checked
                     break;
                 case "3":
                     // Generate a report for all transactions within the current year,
                     // including the date, vendor, and amount for each transaction.
                     LocalDate thisYear = LocalDate.now();
-                    System.out.println("Displaying all transactions for the year of " + ConsoleColors.BOLD_UNDERLINE + thisYear.getYear()+ConsoleColors.RESET + " so far...");
+                    System.out.println("Displaying all transactions for the year of " + ConsoleColors.BOLD + thisYear.getYear() + ConsoleColors.RESET + " so far:");
                     filterTransactionsByDate(thisYear.withDayOfYear(1), thisYear);
                     break;
                 case "4":
                     // Generate a report for all transactions within the previous year,
                     // including the date, vendor, and amount for each transaction.
                     LocalDate lastYear = LocalDate.now().minusYears(1);
-                    System.out.println("Displaying all transactions for the year of " + ConsoleColors.BOLD_UNDERLINE + lastYear.getYear()+ConsoleColors.RESET + "...");
+                    System.out.println("Displaying all transactions for the year of " + ConsoleColors.BOLD + lastYear.getYear() + ConsoleColors.RESET + ":");
                     filterTransactionsByDate(lastYear.withMonth(1).withDayOfMonth(1), lastYear.withMonth(12).withDayOfMonth(31));
                     break;
                 case "5":
+                    // Generate a report for all transactions from a given vendor,
+                    // including the date, vendor, and amount for each transaction.
                     System.out.print("Please type the name of the vendor you would like to check for: ");
                     String vendorName = scanner.nextLine().trim();
                     filterTransactionsByVendor(vendorName);
                 case "0":
                     running = false;
                 default:
-                    System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Invalid option" + ConsoleColors.RESET);
+                    System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Invalid option" + ConsoleColors.RESET);
                     break;
             }
         }
@@ -341,9 +354,9 @@ public class FinancialTracker {
                 found.add(transaction);
             }
         }
-        if (found.isEmpty()) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No transactions found with given date range!" + ConsoleColors.RESET);
-        } else {
+        if (found.isEmpty()) { //Does nothing match the search terms?
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": No transactions found with given date range!" + ConsoleColors.RESET);
+        } else { //Does nothing match the search terms?
             generateTable(found);
         }
 
@@ -362,9 +375,9 @@ public class FinancialTracker {
                 found.add(transaction);
             }
         }
-        if (found.isEmpty()) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No transactions found with given vendor!"+ConsoleColors.RESET);
-        } else {
+        if (found.isEmpty()) { //Does nothing match the search terms?
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": No transactions found with given vendor!" + ConsoleColors.RESET);
+        } else { //Something DOES match
             generateTable(found);
         }
 
@@ -372,22 +385,22 @@ public class FinancialTracker {
     }
 
     public static void customSearch(Scanner scanner){
-        System.out.println("Welcome to the "+ConsoleColors.GREEN_BOLD_BRIGHT+"Custom Search!"+ConsoleColors.RESET);
+        System.out.println("Welcome to the " + ConsoleColors.GREEN_BOLD_BRIGHT + "Custom Search!" + ConsoleColors.RESET);
         System.out.println("If you would not like to search by a given term, feel free to leave it blank.");
         try{
-            System.out.print("Please add the start date of the search (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14" + ConsoleColors.RESET + "): ");
+            System.out.print("Please add the start date of the search (Example: " + ConsoleColors.BOLD + "2023-03-14" + ConsoleColors.RESET + "): ");
             String input = scanner.nextLine().trim();
             LocalDate startDate;
-            if(!input.isEmpty()){
+            if(!input.isEmpty()){ //Parse input if present, create Null case if not
                 startDate = LocalDate.parse(input, DATE_FORMATTER);
             } else {
                 startDate = LocalDate.of(1, 1, 1);
             }
 
-            System.out.print("Please add the end date of the search (Example:" + ConsoleColors.BOLD_UNDERLINE + "2023-03-14" + ConsoleColors.RESET + "): ");
+            System.out.print("Please add the end date of the search (Example: " + ConsoleColors.BOLD + "2023-03-14" + ConsoleColors.RESET + "): ");
             input = scanner.nextLine().trim();
             LocalDate endDate;
-            if(!input.isEmpty()){
+            if(!input.isEmpty()){  //Parse input if present, create Null case if not
                 endDate = LocalDate.parse(input, DATE_FORMATTER);
             } else {
                 endDate = LocalDate.of(9999, 12, 31);
@@ -396,7 +409,7 @@ public class FinancialTracker {
             System.out.print("Please enter the reason of the transaction: ");
             input = scanner.nextLine().trim();
             String description;
-            if(!input.isEmpty()){
+            if(!input.isEmpty()){  //Parse input if present, create Null case if not
                 description = input;
             } else {
                 description = "NONE";
@@ -405,7 +418,7 @@ public class FinancialTracker {
             System.out.print("Please enter the vendor of the transaction: ");
             input = scanner.nextLine().trim();
             String vendor;
-            if(!input.isEmpty()){
+            if(!input.isEmpty()){  //Parse input if present, create Null case if not
                 vendor = input;
             } else {
                 vendor = "NONE";
@@ -414,59 +427,60 @@ public class FinancialTracker {
             System.out.print("Please enter the price of the transaction: ");
             input = scanner.nextLine().trim();
             double price = 0;
-            if(!input.isEmpty()){
+            if(!input.isEmpty()){  //Parse input if present, create Null case if not
                 price = Double.parseDouble(input);
             }
-            if (price < 0) {
-                System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Ignoring filter..."+ConsoleColors.RESET);
+            if (price < 0) { //Check for valid search input
+                System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Ignoring filter..." + ConsoleColors.RESET);
                 price = 0;
             }
 
-            ArrayList<Transaction> found = new ArrayList<>(transactions);
-            if(!startDate.equals(LocalDate.of(1, 1, 1))){
+            ArrayList<Transaction> found = new ArrayList<>(transactions); //Build array to search with
+
+            if(!startDate.equals(LocalDate.of(1, 1, 1))){ //If term is not Null case...
                 //Removes transaction from found if date is before the start day, including the start day itself
                 found.removeIf(item -> !item.getDate().isAfter(startDate.minusDays(1)));
             }
 
-            if(!endDate.equals(LocalDate.of(9999,12,31))){
+            if(!endDate.equals(LocalDate.of(9999,12,31))){ //If term is not Null case...
                 //Removes transaction from found if date is after the end day, including the end day itself
                 found.removeIf(item -> !item.getDate().isBefore(endDate.plusDays(1)));
             }
 
-            if(!description.equals("NONE")){
+            if(!description.equals("NONE")){ //If term is not Null case...
                 //Removes transaction from found if the description does not match what was supplied by user
                 found.removeIf(item -> !item.getDescription().equals(description));
             }
 
-            if(!vendor.equals("NONE")){
+            if(!vendor.equals("NONE")){ //If term is not Null case...
                 //Removes transaction from found if the vendor does not match what was supplied by user
                 found.removeIf(item -> !item.getVendor().equals(vendor));
             }
 
-            if(price!=0){
+            if(price>0){ //If term is not Null case...
                 //Removes transaction from found if the price does not match what was supplied by user
                 double finalPrice = price;
-                found.removeIf(item -> item.getPrice()!= finalPrice);
+                found.removeIf(item -> item.getValue()!= finalPrice);
             }
 
-            if (found.isEmpty()) {
-                System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": No transactions found with given search terms!"+ConsoleColors.RESET);
-            } else {
+            if (found.isEmpty()) { //Does nothing match the search terms?
+                System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": No transactions found with given search terms!" + ConsoleColors.RESET);
+            } else { //Something DOES match
                 generateTable(found);
             }
 
             System.out.println();
         }
         catch (DateTimeParseException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!" + ConsoleColors.RESET);
         } catch (NumberFormatException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Could not parse price!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse price!" + ConsoleColors.RESET);
         } catch (Exception e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR"+ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with search! Check formatting of inputs!"+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with search! Check formatting of inputs!" + ConsoleColors.RESET);
         }
     }
     public static void generateTable(ArrayList<Transaction> transactions){
-        transactions.sort(Transaction.TransDate);
+        transactions.sort(Transaction.multiField());
 
         //INSERT ALL THE ANSI ESCAPE CODES
         System.out.println("""
@@ -479,8 +493,8 @@ public class FinancialTracker {
             String formattedDesc = String.format("%-25.25s",transaction.getDescription());
             String formattedVendor = String.format("%-20.20s",transaction.getVendor());
             String formattedTime = String.format("%-8.8s", transaction.getTime());
-            String formattedPrice = String.format("%6.2f", transaction.getPrice());
-            formattedPrice = String.format("$%8.8s", formattedPrice);
+            String formattedPrice = String.format("%6.2f", transaction.getValue()); //Max of 6 numbers before decimal, 2 after
+            formattedPrice = String.format("$%8.8s", formattedPrice); //Done twice to add needed padding to value after converting from double
             String output = String.format("|%s|%s|%s|%s|%s|", formattedDate,formattedTime,formattedDesc,formattedVendor,formattedPrice);
             System.out.println(output);
             System.out.println("+----------+--------+-------------------------+--------------------+---------+");
