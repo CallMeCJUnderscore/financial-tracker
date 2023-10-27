@@ -426,13 +426,14 @@ public class FinancialTracker {
 
             System.out.print("Please enter the price of the transaction: ");
             input = scanner.nextLine().trim();
-            double price = 0;
-            if(!input.isEmpty()){  //Parse input if present, create Null case if not
-                price = Double.parseDouble(input);
+            double value;
+            //Check if input is valid (Not empty, contains only digits, and does not only contain 0). Parse input if yes, create Null case if not.
+            if (input.isEmpty() || input.matches("\\D+") || input.matches("^0+$")) {
+                System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Payment be a nonzero number! Ignoring filter..." + ConsoleColors.RESET);
+                value = 0;
             }
-            if (price < 0) { //Check for valid search input
-                System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Payment must be positive! Ignoring filter..." + ConsoleColors.RESET);
-                price = 0;
+            else {
+                value = Double.parseDouble(input);
             }
 
             ArrayList<Transaction> found = new ArrayList<>(transactions); //Build array to search with
@@ -457,10 +458,9 @@ public class FinancialTracker {
                 found.removeIf(item -> !item.getVendor().equals(vendor));
             }
 
-            if(price>0){ //If term is not Null case...
-                //Removes transaction from found if the price does not match what was supplied by user
-                double finalPrice = price;
-                found.removeIf(item -> item.getValue()!= finalPrice);
+            if(value>0){ //If term is not Null case...
+                //Removes transaction from found if the value does not match what was supplied by user
+                found.removeIf(item -> item.getValue()!= value);
             }
 
             if (found.isEmpty()) { //Does nothing match the search terms?
@@ -474,7 +474,7 @@ public class FinancialTracker {
         catch (DateTimeParseException e) {
             System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse date/time!" + ConsoleColors.RESET);
         } catch (NumberFormatException e) {
-            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse price!" + ConsoleColors.RESET);
+            System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Could not parse value!" + ConsoleColors.RESET);
         } catch (Exception e) {
             System.out.println(ConsoleColors.ERROR + "ERROR" + ConsoleColors.ERROR_MESSAGE + ": Unspecified issue with search! Check formatting of inputs!" + ConsoleColors.RESET);
         }
@@ -493,9 +493,9 @@ public class FinancialTracker {
             String formattedDesc = String.format("%-25.25s",transaction.getDescription());
             String formattedVendor = String.format("%-20.20s",transaction.getVendor());
             String formattedTime = String.format("%-8.8s", transaction.getTime());
-            String formattedPrice = String.format("%6.2f", transaction.getValue()); //Max of 6 numbers before decimal, 2 after
-            formattedPrice = String.format("$%8.8s", formattedPrice); //Done twice to add needed padding to value after converting from double
-            String output = String.format("|%s|%s|%s|%s|%s|", formattedDate,formattedTime,formattedDesc,formattedVendor,formattedPrice);
+            String formattedValue = String.format("%6.2f", transaction.getValue()); //Max of 6 numbers before decimal, 2 after
+            formattedValue = String.format("$%8.8s", formattedValue); //Done twice to add needed padding to value after converting from double
+            String output = String.format("|%s|%s|%s|%s|%s|", formattedDate,formattedTime,formattedDesc,formattedVendor,formattedValue);
             System.out.println(output);
             System.out.println("+----------+--------+-------------------------+--------------------+---------+");
         }
